@@ -17,7 +17,7 @@ from openpyxl import load_workbook
 
 # Request Headers Cookie
 headers = {
-    'Cookie': '_ga=GA1.1.1021690899.1718458161; language=en; __pp_uid=fCDJaH8JyX66TjHIjF4Nxvtvpf4fxOlu; REVEL_FLASH=; timeDelta=225; REVEL_SESSION=8a3cbd500d59f728ea511aacb19124c7447c5639-%00csrf_token%3AOh5dSHML0U%2BvAjU2SQBfO5u1t7S75EhsekBR5L0Flw8%3D%00%00_TS%3A1746276853%00%00SessionKey%3Acc06b066b62ae473f5c6f46d6b953785649426b0a219aaebc755c1a952dd6fa57724301db41a82-ce9828f67f10443c2f199d17916e771a3cc1e8fcccf3139f489ca11a5ca3822c%00%00UserScreenName%3AFr1nGeLove%00%00UserName%3AFr1nGeLove%00%00a%3Afalse%00%00w%3Afalse%00; _ga_RC512FD18N=GS1.1.1730724124.16.1.1730724855.0.0.0'
+    'Cookie': '_ga=GA1.1.1021690899.1718458161; language=en; __pp_uid=fCDJaH8JyX66TjHIjF4Nxvtvpf4fxOlu; REVEL_FLASH=; REVEL_SESSION=d18a8aa4cd6b31757995619e55f0cd43212741c3-%00SessionKey%3A405d44fb303c68ea84c9dbe309a10a28a57cc5e7b1e645716e029d1259400d84%00%00UserScreenName%3AFr1nGeLove%00%00UserName%3AFr1nGeLove%00%00a%3Afalse%00%00w%3Afalse%00%00csrf_token%3AOh5dSHML0U%2BvAjU2SQBfO5u1t7S75EhsekBR5L0Flw8%3D%00%00_TS%3A1754650654%00; _ga_RC512FD18N=GS1.1.1739098609.26.1.1739098646.0.0.0'
 }
 proxies = {
     'http': 'http://127.0.0.1:7890',
@@ -36,7 +36,7 @@ timeout = 5  # 超时时间，单位秒
 retries = 0
 
 # 导入队员基本信息表
-basic_file = "队员信息表.xlsx"
+basic_file = "test.xlsx"
 basic_workbook = load_workbook(basic_file)
 
 # 选择工作表
@@ -69,17 +69,34 @@ for page_num in range(1, 7):
         pre = date.split(' ')[0].split('-')
         check_date = datetime(int(pre[0]), int(pre[1]), int(pre[2]))
         competition_name = data[0]['Contest Name'][row_cnt]
+        # print(competition_name)
+
         if start_date <= check_date <= end_date:
             if competition_name.find("AtCoder Beginner Contest") != -1:
-                num = str(re.findall(r'\d+', competition_name)[-1])
+                # print(competition_name.find("AtCoder Beginner Contest"))
+                div = competition_name.split(' ')
+                # print(div)
+                # print(re.findall(r'\d+', competition_name))
+                # num = str(re.findall(r'\d+', competition_name)[-1])
+                num = str(re.findall(r'\d+', str(div[div.index('Beginner') + 2]))[-1])
                 competition.append("abc" + num)
                 print("abc" + num)
             elif competition_name.find("AtCoder Grand Contest") != -1:
-                num = str(re.findall(r'\d+', competition_name)[-1])
+                # num = str(re.findall(r'\d+', competition_name)[-1])
+                div = competition_name.split(' ')
+                # print(div)
+                # print(re.findall(r'\d+', competition_name))
+                # num = str(re.findall(r'\d+', competition_name)[-1])
+                num = str(re.findall(r'\d+', str(div[div.index('Grand') + 2]))[-1])
                 competition.append("agc" + num)
                 print("agc" + num)
             elif competition_name.find("AtCoder Regular Contest") != -1:
-                num = str(re.findall(r'\d+', competition_name)[-1])
+                # num = str(re.findall(r'\d+', competition_name)[-1])
+                div = competition_name.split(' ')
+                # print(div)
+                # print(re.findall(r'\d+', competition_name))
+                # num = str(re.findall(r'\d+', competition_name)[-1])
+                num = str(re.findall(r'\d+', str(div[div.index('Regular') + 2]))[-1])
                 print("arc" + num)
                 competition.append("arc" + num)
         row_cnt += 1
@@ -89,7 +106,7 @@ print(competition)
 competition_workbook = Workbook()
 major_sheet = competition_workbook.active
 major_sheet.title = 'ALL'
-competition_workbook.save("Atcoder积分表 From' + start_str + 'to' + end_str + '.xlsx")
+competition_workbook.save('Atcoder积分表 From' + start_str + 'to' + end_str + '.xlsx')
 
 tag = False
 # 依次查询每一场比赛
@@ -188,11 +205,11 @@ for contest_name in competition:
                 atc_id_column = cell.column  # 获取列字母（如'A'、'B'等）
                 break  # 找到后退出循环
 
-        atc_rating_column = None
-        for cell in total_sheet[1]:
-            if cell.value == 'atc_rating':
-                atc_rating_column = cell.column
-                break
+        # atc_rating_column = None
+        # for cell in total_sheet[1]:
+        #     if cell.value == 'atc_rating':
+        #         atc_rating_column = cell.column
+        #         break
 
         name_column = None
         for cell in total_sheet[1]:
@@ -207,7 +224,7 @@ for contest_name in competition:
                 break
 
         # 如果没有找到'atc_id'，则打印错误消息
-        if atc_id_column is None or atc_rating_column is None or name_column is None:
+        if atc_id_column is None or name_column is None:
             print("AtcoderID or AtcoderRating or Name not found.")
         else:
             # total_sheet.append([None] * total_sheet.max_column)
