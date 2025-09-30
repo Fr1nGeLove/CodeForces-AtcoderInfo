@@ -34,7 +34,7 @@ cf_api = codeforces_api.CodeforcesApi(key, secret)
 all_contest = cf_api.contest_list()
 
 # 导入队员基本信息表
-basic_file = "队员信息表.xlsx"
+basic_file = "test.xlsx"
 basic_workbook = load_workbook(basic_file)
 
 # 输入查询区间
@@ -110,7 +110,7 @@ for cur_contest in all_contest:
         problem_col = 4
         for problem in problem_set:
             competition_sheet.cell(row=1, column=problem_col, value=problem.index)
-            competition_sheet.cell(row=1, column=problem_col, value=problem.rating)
+            competition_sheet.cell(row=2, column=problem_col, value=problem.rating)
             problem_col += 1
             # print(problem.index)
             # print(problem.points)
@@ -138,6 +138,7 @@ for cur_contest in all_contest:
                 # print(standing)
                 if not standing:
                     major_sheet.cell(row=cnt, column=col, value='未参赛')
+                    competition_sheet.cell(row=cnt, column=3, value='未参赛')
                     # print("No")
                     cnt += 1
                 else:
@@ -146,15 +147,27 @@ for cur_contest in all_contest:
                     ans = 0.
                     problem_col = 4
                     count = 0
+                    update_tag = True
                     for result in problem_set:
-                        print(result.rating)
+                        # print(result.rating)
+                        if result.rating is None:
+                            update_tag = False
+                            print("题目分数未更新")
                         competition_sheet.cell(row=cnt, column=problem_col,
                                                value=(0 if standing[0].problem_results[count].points == 0 else 1))
-                        ans += (((result.rating - 275) * (0 if standing[0].problem_results[count].points == 0 else 1)) / 300) ** 2
+                        if result.rating is not None:
+                            ans += (((result.rating - 275) * (0 if standing[0].problem_results[count].points == 0 else 1)) / 300) ** 2
+
                         count += 1
                         problem_col += 1
-                    competition_sheet.cell(row=cnt, column=3, value=ans)
-                    major_sheet.cell(row=cnt, column=col, value=ans)
+
+                    if update_tag is True:
+                        competition_sheet.cell(row=cnt, column=3, value=ans)
+                        major_sheet.cell(row=cnt, column=col, value=ans)
+                    else:
+                        competition_sheet.cell(row=cnt, column=3, value='本场分数未更新')
+                        major_sheet.cell(row=cnt, column=col, value='本场分数未更新')
+
                     cnt += 1
             except Exception as e:
                 major_sheet.cell(row=cnt, column=col, value='未参赛')
@@ -228,7 +241,7 @@ for row in major_sheet.iter_rows(min_row=3, max_row=major_sheet.max_row, values_
     for col in range(cf_rating_col + 1, right_col - 1):
         val = major_sheet.cell(max_row, col).value
         print(val)
-        if val is not None and val != '未参赛':
+        if val is not None and val != '未参赛' and val != '本场分数未更新':
             # print(str(max_row) + " " + str(col))
             ans += val
             if val > mx1:
